@@ -1,7 +1,17 @@
 import datetime
 from typing import List, Set
 
-from urnik.models import Termin, ENOTA_SIRINE, ENOTA_VISINE, MIN_URA, Srecanje, Rezervacija
+from urnik.models import Termin, ENOTA_SIRINE, ENOTA_VISINE, MIN_URA, Srecanje, Rezervacija, Odjava
+
+from urnik.models import Termin, ENOTA_SIRINE, ENOTA_VISINE, MIN_URA, Srecanje, Rezervacija, Odjava
+
+
+def ura_display(ura: int) -> str:
+    return str(ura)
+
+
+def trajanje_display(trajanje: int) -> str:
+    return str(trajanje)
 
 
 class TedenskiUrnikTermin(Termin):
@@ -20,7 +30,9 @@ class TedenskiUrnikTermin(Termin):
         self.kategorije = set()  # hrani indekse različnih kategorij iz legende, ki jim srečanje pripada
 
     def __str__(self):
-        return "Termin {} v dnevu {}, {}-{}, kategorije: {}".format(self.tip, self.dan, self.ura, self.ura+self.trajanje, self.kategorije)
+        return "Termin {} v dnevu {}, {}-{}, kategorije: {}".format(
+            self.tip, self.dan, ura_display(self.ura),
+            ura_display(self.ura + self.trajanje), self.kategorije)
 
     def __lt__(self, other):
         return (self.dan, self.ura, self.trajanje) < (other.dan, other.ura, other.trajanje)
@@ -83,10 +95,17 @@ class TedenskiUrnik:
         self._termini = []
 
     def dodaj_srecanja(self, srecanja):
+        odjave = Odjava.objects.filter(srecanje__in=srecanja)
         self._termini.extend(TedenskiUrnikTermin.iz_srecanja(s) for s in srecanja)
 
     def dodaj_rezervacije(self, rezervacije, teden):
-        self._termini.extend(TedenskiUrnikTermin.iz_rezervacije(r, d.weekday()+1) for r in rezervacije for d in r.dnevi_med(teden, teden + datetime.timedelta(days=4)))
+        for ele in self._termini:
+            print(ele)
+        print(teden)
+        self._termini.extend(
+            TedenskiUrnikTermin.iz_rezervacije(r, d.weekday()+1) for r in rezervacije
+            for d in r.dnevi_med(teden, teden + datetime.timedelta(days=4))
+        )
 
     def kategoriziraj(self, kategorije):
         """

@@ -234,6 +234,8 @@ def urnik(request, srecanja, rezervacije, naslov, teden=None, legenda=None):
     kategorije = legenda
     if kategorije is None:
         kategorije = Predmet.objects.filter(srecanja__in=srecanja).distinct()
+        if not kategorije:
+            kategorije = rezervacije.distinct()
     semester = izbrani_semester(request)
     teden_v_napacnem_semestru = False
     tedenski_urnik = TedenskiUrnik()

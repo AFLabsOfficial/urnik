@@ -624,3 +624,12 @@ class Rezervacija(models.Model):
 
     def povezani_objekti(self):
         return (set(self.ucilnice.all()) | set(self.osebe.all()) | set(self.predmeti.all()) | set(self.letniki) | set(self.slusatelji))
+
+
+class Odjava(models.Model):
+    srecanje = models.ForeignKey(Srecanje, on_delete=models.CASCADE)
+    datum = models.DateField()
+    def __str__(self):
+        return str(self.srecanje.predmet) +" "+str(self.datum)
+    class Meta:
+        verbose_name_plural='Odjave Srečanj'

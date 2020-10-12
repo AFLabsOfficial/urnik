@@ -1,6 +1,6 @@
 from django.contrib import admin, messages
 from django.shortcuts import redirect
-from .models import Oseba, Letnik, Ucilnica, Predmet, Srecanje, Semester, Rezervacija
+from .models import Oseba, Letnik, Ucilnica, Predmet, Srecanje, Semester, Rezervacija, Odjava
 
 
 @admin.register(Oseba)
@@ -195,3 +195,10 @@ class SrecanjeAdmin(admin.ModelAdmin):
         ).prefetch_related(
             'ucitelji'
         )
+
+@admin.register(Odjava)
+class SrecanjeAdmin(admin.ModelAdmin):
+    list_display = (
+        'datum',
+        'srecanje'
+    )
