@@ -102,9 +102,10 @@ class TedenskiUrnik:
         zacetni_datum = teden
         koncni_datum = teden + datetime.timedelta(days=4)
 
-        odjave = [odjava.srecanje for odjava in Odjava.objects.filter(datum__gte= zacetni_datum, datum__lte=koncni_datum)]
+        odjave = [odjava.srecanje for odjava in Odjava.objects.filter(datum__gte=zacetni_datum, datum__lte=koncni_datum)]
         for ele in self._termini:
             if ele.model in odjave:
+                #todo: filtriraj še po dnevih!
                 self._termini.remove(ele)
         self._termini.extend(
             TedenskiUrnikTermin.iz_rezervacije(r, d.weekday()+1) for r in rezervacije
