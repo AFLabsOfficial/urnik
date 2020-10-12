@@ -99,12 +99,16 @@ class TedenskiUrnik:
         self._termini.extend(TedenskiUrnikTermin.iz_srecanja(s) for s in srecanja)
 
     def dodaj_rezervacije(self, rezervacije, teden):
+        zacetni_datum = teden
+        koncni_datum = teden + datetime.timedelta(days=4)
+
+        odjave = [odjava.srecanje for odjava in Odjava.objects.filter(datum__gte= zacetni_datum, datum__lte=koncni_datum)]
         for ele in self._termini:
-            print(ele)
-        print(teden)
+            if ele.model in odjave:
+                self._termini.remove(ele)
         self._termini.extend(
             TedenskiUrnikTermin.iz_rezervacije(r, d.weekday()+1) for r in rezervacije
-            for d in r.dnevi_med(teden, teden + datetime.timedelta(days=4))
+            for d in r.dnevi_med(zacetni_datum, koncni_datum)
         )
 
     def kategoriziraj(self, kategorije):
