@@ -95,23 +95,22 @@ class TedenskiUrnik:
         self._termini = []
 
     def dodaj_srecanja(self, srecanja):
-        odjave = Odjava.objects.filter(srecanje__in=srecanja)
         self._termini.extend(TedenskiUrnikTermin.iz_srecanja(s) for s in srecanja)
 
     def dodaj_rezervacije(self, rezervacije, teden):
         zacetni_datum = teden
         koncni_datum = teden + datetime.timedelta(days=4)
-
         odjave = [odjava.srecanje for odjava in Odjava.objects.filter(datum__gte=zacetni_datum, datum__lte=koncni_datum)]
-        for ele in self._termini:
-            if ele.model in odjave:
-                #todo: filtriraj še po dnevih!
-                self._termini.remove(ele)
+        for srecanje in self._termini:
+            if srecanje.model in odjave:
+                odjave = Odjava.objects.filter(srecanje=srecanje.model)
+                for odjava in odjave:
+                    if odjava.datum.weekday()+1==srecanje.dan:
+                        self._termini.remove(srecanje)
         self._termini.extend(
             TedenskiUrnikTermin.iz_rezervacije(r, d.weekday()+1) for r in rezervacije
             for d in r.dnevi_med(zacetni_datum, koncni_datum)
         )
-
     def kategoriziraj(self, kategorije):
         """
         Kategorije so množice objektov (letnik, predmet, oseba, učilnica), na katere se lahko nanaša eno srečanje.

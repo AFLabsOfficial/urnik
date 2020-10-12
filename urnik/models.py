@@ -2,6 +2,8 @@ import datetime
 from collections import defaultdict
 from copy import deepcopy
 
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.db import models
 from django.utils.timezone import now
@@ -629,7 +631,13 @@ class Rezervacija(models.Model):
 class Odjava(models.Model):
     srecanje = models.ForeignKey(Srecanje, on_delete=models.CASCADE)
     datum = models.DateField()
+
+    def clean(self):
+        if self.srecanje.dan != self.datum.weekday()+1:
+            raise ValidationError(_('Srečanje na ta datum ne obstaja. Ali je datum res na dan: ' +str(self.srecanje.get_dan_display()) ))
+
     def __str__(self):
         return str(self.srecanje.predmet) +" "+str(self.datum)
+
     class Meta:
         verbose_name_plural='Odjave Srečanj'
